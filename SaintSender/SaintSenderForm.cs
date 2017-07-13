@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -31,12 +32,11 @@ namespace SaintSender
         }
 
         //testElekCC testElek00
-        //külön szálra h ne csússzon el a display amíg tölt
-        //autorefresh
+        //some encrypting would be nice
 
         private void SaintSenderForm_Load(object sender, EventArgs e)
         {
-            LoginDisplay();
+            if (File.Exists("userconfig.dat")) LoadUser(); else LoginDisplay();
         }
 
         private void StartTimer()
@@ -48,7 +48,7 @@ namespace SaintSender
 
         void t_Tick(object sender, EventArgs e)
         {
-            if (Sender.loaded) { ShowMails(); MessageBox.Show("t"); }
+            if (Sender.loaded) ShowMails();
         }
 
         private void LoginBtn_Click(object sender, EventArgs e)
@@ -102,11 +102,6 @@ namespace SaintSender
             NewDisplay();
         }
 
-        private void SaveBtn_Click(object sender, EventArgs e)
-        {
-            //serialize the message
-        }
-
         
         private void SendBtn_Click(object sender, EventArgs e)
         {
@@ -131,7 +126,6 @@ namespace SaintSender
             if (Sender.loaded)
             {
                 ShowMails();
-                MessageBox.Show("t");
             }
         }
 
@@ -150,6 +144,7 @@ namespace SaintSender
         private void LogOutBtn_Click(object sender, EventArgs e)
         {
             Sender = null;
+            File.Delete("userconfig.dat");
             LoginDisplay();
         }
 
@@ -164,6 +159,22 @@ namespace SaintSender
                 MailBox.Items.Add(listViewItem);
             }
             MailBox.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+        }
+
+        private void SaveUserBtn_Click(object sender, EventArgs e)
+        {
+            Sender.user.Serialize();
+        }
+
+        private void LoadUser()
+        {
+            t.Stop();
+            User oldUser = User.Deserialize();
+            EmailTxt.Text = oldUser.EmailAddress;
+            PasswordTxt.Text = oldUser.Password;
+            LoginPanel.Visible = true;
+            MailPanel.Visible = false;
+            NewPanel.Visible = false;
         }
     }
 }

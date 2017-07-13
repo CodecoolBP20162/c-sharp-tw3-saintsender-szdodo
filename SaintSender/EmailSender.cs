@@ -14,7 +14,7 @@ namespace SaintSender
 {
     class EmailSender
     {
-        User user;
+        public User user;
         public ArrayList mails = new ArrayList();
         public Boolean loggedIn = false;
         public Boolean loaded = false;
@@ -63,11 +63,6 @@ namespace SaintSender
                 var inbox = client.Inbox;
                 inbox.Open(FolderAccess.ReadOnly);
 
-
-                //MailBox.Items.Add("Recent messages: " + inbox.Recent);
-
-
-                
                 if (numberOfMails < inbox.Count)
                 {
                     mails.Clear();
@@ -86,8 +81,6 @@ namespace SaintSender
                     }
                     numberOfMails = inbox.Count;
                     loaded = true;
-
-
                 }
                 client.Disconnect(true);
             }

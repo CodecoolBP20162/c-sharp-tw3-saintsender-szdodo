@@ -9,7 +9,6 @@ namespace SaintSender
 {
     public class Validation
     {
-        //külön classba, password email ellenőrzés
         public static Boolean CorrectEmailAddress(string Address)
         {
             if (Regex.IsMatch(Address, @"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$"))
