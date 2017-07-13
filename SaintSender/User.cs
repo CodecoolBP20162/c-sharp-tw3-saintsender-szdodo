@@ -10,11 +10,13 @@ namespace SaintSender
     {
         public string EmailAddress { get; set; }
         public string Password { get; set; }
+        public string UserName { get; set; }
 
         public User(string EmailAddress, string Password)
         {
             this.EmailAddress = EmailAddress;
             this.Password = Password;
+            UserName = EmailAddress.Substring(0, EmailAddress.Length - 10);
         }
     }
 }
