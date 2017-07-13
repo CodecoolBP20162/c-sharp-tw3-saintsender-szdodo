@@ -20,6 +20,7 @@ namespace SaintSender
     public partial class SaintSenderForm : Form
     {
         EmailSender Sender;
+        System.Windows.Forms.Timer t = new System.Windows.Forms.Timer();
 
         public SaintSenderForm()
         {
@@ -38,6 +39,18 @@ namespace SaintSender
             LoginDisplay();
         }
 
+        private void StartTimer()
+        {
+            t.Interval = 2000;
+            t.Tick += new EventHandler(t_Tick);
+            t.Start();
+        }
+
+        void t_Tick(object sender, EventArgs e)
+        {
+            if (Sender.loaded) { ShowMails(); MessageBox.Show("t"); }
+        }
+
         private void LoginBtn_Click(object sender, EventArgs e)
         {
             if (!Validation.CorrectEmailAddress(EmailTxt.Text) || Validation.EmptyInput(PasswordTxt.Text))
@@ -52,7 +65,6 @@ namespace SaintSender
             first.Join();
             ShowMails();
             if (Sender.loggedIn) MailDisplay(); else LoginDisplay();
-            
         }
 
 
@@ -61,10 +73,12 @@ namespace SaintSender
             LoginPanel.Visible = false;
             MailPanel.Visible = true;
             NewPanel.Visible = false;
+            AutoRefresh();
         }
 
         private void NewDisplay()
         {
+            t.Stop();
             ToTxt.Clear();
             SubjectTxt.Clear();
             MsgTxt.Clear();
@@ -75,6 +89,7 @@ namespace SaintSender
 
         private void LoginDisplay()
         {
+            t.Stop();
             EmailTxt.Clear();
             PasswordTxt.Clear();
             LoginPanel.Visible = true;
@@ -113,9 +128,18 @@ namespace SaintSender
 
         private void RefreshBtn_Click(object sender, EventArgs e)
         {
+            if (Sender.loaded)
+            {
+                ShowMails();
+                MessageBox.Show("t");
+            }
+        }
+
+        private void AutoRefresh()
+        {
             Thread first = new Thread(new ThreadStart(Sender.RetrieveMail));
             first.Start();
-            ShowMails();
+            StartTimer();
         }
 
         private void CancelBtn_Click(object sender, EventArgs e)
@@ -131,14 +155,15 @@ namespace SaintSender
 
         private void ShowMails()
         {
+            Sender.loaded = false;
             MailBox.Items.Clear();
-            foreach(string[] mail in Sender.mails)
+
+            foreach (string[] mail in Sender.mails)
             {
                 var listViewItem = new ListViewItem(mail);
                 MailBox.Items.Add(listViewItem);
             }
             MailBox.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
-
         }
     }
 }

@@ -17,6 +17,8 @@ namespace SaintSender
         User user;
         public ArrayList mails = new ArrayList();
         public Boolean loggedIn = false;
+        public Boolean loaded = false;
+        int numberOfMails=0;
 
         public EmailSender(User user)
         {
@@ -36,6 +38,7 @@ namespace SaintSender
 
         public void RetrieveMail()
         {
+            loaded = false;
             using (var client = new ImapClient())
             {
                 client.ServerCertificateValidationCallback = (s, c, h, e) => true;
@@ -60,24 +63,32 @@ namespace SaintSender
                 var inbox = client.Inbox;
                 inbox.Open(FolderAccess.ReadOnly);
 
-                //MailBox.Items.Add("Total messages: " + inbox.Count.ToString());
+
                 //MailBox.Items.Add("Recent messages: " + inbox.Recent);
 
 
-                for (int i = 0; i < inbox.Count; i++)
+                
+                if (numberOfMails < inbox.Count)
                 {
-                    var message = inbox.GetMessage(i);
-                    try
+                    mails.Clear();
+                    for (int i = inbox.Count - 1; i >= 0; i--)
                     {
-                        string[] row = { message.To.ToString(), message.Subject, message.TextBody};
-                        mails.Add(row);
+                        var message = inbox.GetMessage(i);
+                        try
+                        {
+                            string[] row = { message.To.ToString(), message.Subject, message.TextBody };
+                            mails.Add(row);
+                        }
+                        catch (ArgumentNullException)
+                        {
+                            mails.Add("Empty message");
+                        }
                     }
-                    catch (ArgumentNullException)
-                    {
-                        mails.Add("Empty message");
-                    }
-                }
+                    numberOfMails = inbox.Count;
+                    loaded = true;
 
+
+                }
                 client.Disconnect(true);
             }
 
